@@ -81,7 +81,6 @@
     logic error_reg;
     logic valid_reg;	  
 	
-	logic [7:0] count = 0;
 
 
     assign data = data_reg;
@@ -119,7 +118,6 @@
                     data_reg <= 0;
                     bit_count <= 0;
                     byte_count <= 0;
-					count <= 0;
                 end
             end
             start:
