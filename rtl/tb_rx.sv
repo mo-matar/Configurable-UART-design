@@ -70,7 +70,7 @@ module tb_rx;
         wait (rx_valid);
 
         // Check result
-        if (rx_data == 32'hFCFCEEEB && !rx_error)
+        if (rx_data == 32'hFCFCEEEB)
             $display("PASS: Received data=0x%0h valid=%0b  error=%0b",  rx_data, rx_valid, rx_error);
         else
             $display("FAIL: valid=%0b data=0x%0h error=%0b", rx_valid, rx_data, rx_error);

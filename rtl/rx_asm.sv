@@ -129,11 +129,8 @@
             end
 
             receive: begin
-                // Only shift and increment if we're staying in receive state
-                //if (next_state == receive) begin ====> THIS SOLUTION DOES NOT WORK
                     data_reg <= {rx_in, data_reg[DATA_WIDTH-1:1]};
                     bit_count <= bit_count + 1;
-                //end
                 
             end
 
@@ -149,8 +146,8 @@
 
             last_bit_parity_checker: begin
 
-                parity <= rx_in;
-                actual_parity <= ^data_reg[DATA_WIDTH-1:0];
+                //parity <= rx_in;
+                //actual_parity <= ^data_reg[DATA_WIDTH-1:0];
                 error_reg <= (rx_in != (^data_reg[DATA_WIDTH-1:0]));
 
             end
