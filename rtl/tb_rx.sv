@@ -2,7 +2,7 @@
 
 module tb_rx;
 
-    parameter DATA_WIDTH = 8;
+    parameter DATA_WIDTH = 32;
 
     logic clk;
     logic rst_n;
@@ -54,7 +54,7 @@ module tb_rx;
         tx_valid = 0;
         tx_data = 0;
         tx_error = 0;
-        parity_per_byte = 0;
+        parity_per_byte = 1;
         #(20);
         rst_n = 1;
 
@@ -62,17 +62,16 @@ module tb_rx;
         #(20);
 
         // Send 0xFC (8'b11111100)
-        tx_data = 8'hFC;
+        tx_data = 32'hFCFCEEEB;
         tx_valid = 1;
-        #(20);
-        tx_valid = 0;
+
 
         // Wait for receiver to process
         wait (rx_valid);
 
         // Check result
-        if (rx_data == 8'hFC && !rx_error)
-            $display("PASS: Received 0x%0h", rx_data);
+        if (rx_data == 32'hFCFCEEEB && !rx_error)
+            $display("PASS: Received data=0x%0h valid=%0b  error=%0b",  rx_data, rx_valid, rx_error);
         else
             $display("FAIL: valid=%0b data=0x%0h error=%0b", rx_valid, rx_data, rx_error);
 

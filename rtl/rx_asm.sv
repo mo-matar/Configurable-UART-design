@@ -52,6 +52,9 @@
 
 
     stop:
+	DATA = DATA_REG
+	valid = 1
+	
  
 
  */
@@ -121,13 +124,13 @@
             end
             start:
             begin
-                //$assert (condition = (rx_in == 0), message = "Start bit not detected");
+
               	if(rx_in == 0) $display("still 0");
             end
 
             receive: begin
                 // Only shift and increment if we're staying in receive state
-                //if (next_state == receive) begin
+                //if (next_state == receive) begin ====> THIS SOLUTION DOES NOT WORK
                     data_reg <= {rx_in, data_reg[DATA_WIDTH-1:1]};
                     bit_count <= bit_count + 1;
                 //end
@@ -138,11 +141,9 @@
 
                 //parity <= rx_in;
                 byte_count <= byte_count + 1;
+				bit_count <= 0;
               //actual_parity <= ^data_reg[byte_count * 8 +: 8];
              if(!error_reg) error_reg <= (rx_in != (^data_reg[byte_count * 8 +: 8]));
-                if (!((byte_count+1) * 8 == DATA_WIDTH)) begin
-                        bit_count <= 0;
-                end
 
             end
 
@@ -170,30 +171,30 @@
 
 
     always_comb begin
-        
+
         case(current_state)
             
             idle: begin
 
                 if (rx_in == 0) begin
-                    next_state = start;
+                    next_state = receive;
                 end else begin
                     next_state = idle;
                 end
 
             end
 
-            start: begin
+            start: begin // this state is not used
                 next_state = receive;
 
             end
 
             receive: begin
 
-                if ((bit_count + 1) == 8 && parity_per_byte) begin
+                if (bit_count == 7 && parity_per_byte) begin
 					
                     next_state = parity_per_byte_checker;
-                end else if (bit_count == DATA_WIDTH - 2) begin
+                end else if (bit_count == DATA_WIDTH - 1) begin
                     next_state = last_bit_parity_checker;
                 end else begin
                     next_state = receive;
