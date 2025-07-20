@@ -27,10 +27,10 @@ module brg #(
 
     //calculate divider value
     logic [31:0] max_rate;
-    assign max_rate = CLK_FREQ / (current_baud); // Same rate for both rx and tx
+  assign max_rate = CLK_FREQ / (current_baud * 2); // Same rate for both rx and tx
 
     //counter width calculation
-    localparam CNT_WIDTH = $clog2(CLK_FREQ / ( BAUD_57600)) + 1;
+  localparam CNT_WIDTH = $clog2(CLK_FREQ / ( BAUD_57600 * 2)) + 1;
 
     logic [CNT_WIDTH-1:0] counter;
 
