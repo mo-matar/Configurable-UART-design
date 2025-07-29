@@ -73,7 +73,8 @@
         transmit = 3'b010,
         parity_per_byte_generator = 3'b011,
         last_bit_parity_generator = 3'b100,
-        stop = 3'b101
+        stop = 3'b101,
+        last_bit_parity_per_byte_generator = 3'b110
     } state_t;
 
     state_t current_state, next_state;
@@ -81,6 +82,7 @@
     logic [2:0] byte_count;
    logic [5:0] bit_count;
     logic parity;
+    logic last_parity_per_byte;
     logic error_reg;
 
     assign tx_out = tx_out_reg;
@@ -95,6 +97,7 @@
             byte_count <= 0;
             bit_count <= 0;
             parity <= 0;
+            last_parity_per_byte <= 0;
             error_reg <= 0;
         end else begin
             current_state <= next_state;
@@ -117,6 +120,7 @@
                     byte_count <= 0;
                     bit_count <= 0;
                     parity <= 0;
+                    last_parity_per_byte <= 0;
                     error_reg <= error;
                 end
                 
@@ -128,12 +132,20 @@
                 end
                 
                 parity_per_byte_generator: begin
+                    last_parity_per_byte <= last_parity_per_byte ^ parity;
                     tx_out_reg <= error_reg ? ~parity : parity;
                     byte_count <= byte_count + 1;
                     if (!((byte_count+1) * 8 == DATA_WIDTH)) begin
                         bit_count <= 0;
                     end
+					parity <= 0;
+                end		
+				
+
+                last_bit_parity_per_byte_generator: begin
+                    tx_out_reg <= error_reg ? ~last_parity_per_byte : last_parity_per_byte;
                 end
+
                 
                 last_bit_parity_generator: begin
                     tx_out_reg <= error_reg ? ~parity : parity;
@@ -182,13 +194,17 @@
             
             parity_per_byte_generator: begin
                 if ((byte_count+1) * 8 == DATA_WIDTH) begin
-                    next_state = stop;
+                    next_state = last_bit_parity_per_byte_generator;
                 end else begin
                     next_state = transmit;
                 end
             end
             
             last_bit_parity_generator: begin
+                next_state = stop;
+            end
+
+            last_bit_parity_per_byte_generator: begin
                 next_state = stop;
             end
             
