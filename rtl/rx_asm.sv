@@ -79,7 +79,9 @@
     logic parity;
     logic actual_parity;
     logic error_reg;
-    logic valid_reg;	  
+    logic valid_reg;
+	    logic last_parity_per_byte;
+
 	
 
 
@@ -93,7 +95,8 @@
         receive = 3'b010,
         parity_per_byte_checker = 3'b011,
         last_bit_parity_checker = 3'b100,
-        stop = 3'b101
+        stop = 3'b101,
+        last_bit_parity_per_byte_checker = 3'b110
     } state_t;
 
     state_t current_state, next_state;
@@ -139,6 +142,13 @@
 				bit_count <= 0;
               //actual_parity <= ^data_reg[byte_count * 8 +: 8];
              if(!error_reg) error_reg <= (rx_in != (^data_reg[byte_count * 8 +: 8]));
+
+            end	
+			
+			last_bit_parity_per_byte_checker: begin
+
+                error_reg <= (rx_in != (last_parity_per_byte));
+ 
 
             end
 
@@ -209,6 +219,10 @@
 
             last_bit_parity_checker: begin
                 next_state = stop;
+            end	 
+			
+			            last_bit_parity_per_byte_checker: begin
+                next_state = stop;
             end
 
             stop: begin
@@ -227,3 +241,4 @@
 
 
  endmodule
+
